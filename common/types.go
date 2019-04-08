@@ -368,6 +368,8 @@ var (
 	// Auto buy tickets
 	AutoBuyTicket = false
 	AutoBuyTicketChan = make(chan int, 10)
+	// Tickets to buy for autobuy wacom
+	TicketsToBuy = int(10)
 )
 
 // FSNCallFunc wacom

@@ -113,6 +113,7 @@ var (
 		utils.MinerRecommitIntervalFlag,
 		utils.MinerNoVerfiyFlag,
 		utils.AutoBuyTicketsEnabledFlag,
+		utils.AutoBuyTicketsCountFlag,
 		utils.NATFlag,
 		utils.NoDiscoverFlag,
 		utils.DiscoveryV5Flag,
@@ -333,6 +334,11 @@ func startNode(ctx *cli.Context, stack *node.Node) {
 			}
 		}
 	}()
+
+	if ctx.GlobalIsSet(utils.AutoBuyTicketsCountFlag.Name) {
+		common.TicketsToBuy = ctx.GlobalInt(utils.AutoBuyTicketsCountFlag.Name)
+		log.Info("AutoBuyTicketsCount set to " , " number = ", common.TicketsToBuy )
+	}
 	// Start auto buy tickets if enabled
 	if ctx.GlobalBool(utils.AutoBuyTicketsEnabledFlag.Name) {
 		// use first account

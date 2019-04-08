@@ -383,6 +383,11 @@ var (
 		Name:  "autobt",
 		Usage: "Enable auto buy tickets",
 	}
+	// Auto buy ticket count
+	AutoBuyTicketsCountFlag = cli.BoolFlag{
+		Name:  "autobtcount",
+		Usage: "if auto buy tickets enabled, max to buy else default to 10",
+	}
 	// Account settings
 	UnlockedAccountFlag = cli.StringFlag{
 		Name:  "unlock",

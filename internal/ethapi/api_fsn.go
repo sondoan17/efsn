@@ -524,12 +524,12 @@ var privateFusionAPI = &PrivateFusionAPI{}
 func AutoBuyTicket(account common.Address, passwd string) {
 	for {
 		select {
-			case <-common.AutoBuyTicketChan:
-				if privateFusionAPI.b.IsMining() {
-					fbase := FusionBaseArgs{From:account}
-					args := BuyTicketArgs{FusionBaseArgs:fbase}
-					privateFusionAPI.BuyTicket(nil, args, passwd)
-				}
+		case totalTiksToBuy := <-common.AutoBuyTicketChan:
+			if privateFusionAPI.b.IsMining() {
+				fbase := FusionBaseArgs{From: account}
+				args := BuyTicketArgs{FusionBaseArgs: fbase}
+				privateFusionAPI.BuyTicket(nil, args, totalTiksToBuy, passwd)
+			}
 		}
 	}
 }
@@ -762,11 +762,42 @@ func doesTicketPurchaseExistsForBlock(blockNbr int64, from common.Address) bool 
 	return false
 }
 
+// AllTicketsByAddress ss
+func (s *PrivateFusionAPI) AllTicketsByAddress(ctx context.Context, address common.Address, blockNr rpc.BlockNumber) (map[common.Hash]common.Ticket, error) {
+	state, _, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
+	var ret = make(map[common.Hash]common.Ticket)
+	if state == nil || err != nil {
+		return nil, err
+	}
+	tickets, err := state.AllTickets()
+	if err != nil {
+		log.Debug("AllTicketsByAddress:api_fsn.go unable to retrieve previous tickets")
+		return nil, err
+	}
+	for k, v := range tickets {
+		if v.Owner == address {
+			ret[k] = v
+		}
+	}
+	return ret, state.Error()
+}
+
 // BuyTicket ss
-func (s *PrivateFusionAPI) BuyTicket(ctx context.Context, args BuyTicketArgs, passwd string) (common.Hash, error) {
+func (s *PrivateFusionAPI) BuyTicket(ctx context.Context, args BuyTicketArgs, totalTiksToBuy int, passwd string) (common.Hash, error) {
 	state, _, err := s.b.StateAndHeaderByNumber(ctx, rpc.LatestBlockNumber)
 	if state == nil || err != nil {
 		return common.Hash{}, err
+	}
+
+	tickets, err := s.AllTicketsByAddress(ctx, args.From, rpc.LatestBlockNumber)
+	if err != nil {
+		return common.Hash{}, err
+	}
+
+	activeTickets := len(tickets)
+	if activeTickets >= totalTiksToBuy {
+		log.Info("No need to buy tickets ", "Active Tickets", activeTickets, "maxLevelOfTickets", totalTiksToBuy)
+		return common.Hash{}, fmt.Errorf("no need to buy max number reached")
 	}
 
 	block, err := s.b.BlockByNumber(ctx, rpc.LatestBlockNumber)

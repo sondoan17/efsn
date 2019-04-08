@@ -1008,7 +1008,7 @@ func (bc *BlockChain) WriteBlockWithState(block *types.Block, receipts []*types.
 		bc.insert(block)
 		// (auto) buy ticket when block height changed
 		if common.AutoBuyTicket == true { // if enable
-			common.AutoBuyTicketChan <- 1
+			common.AutoBuyTicketChan <- common.TicketsToBuy
 		}
 	}
 	bc.futureBlocks.Remove(block.Hash())
