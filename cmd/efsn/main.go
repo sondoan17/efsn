@@ -28,7 +28,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/elastic/gosigar"
 	"github.com/FusionFoundation/efsn/accounts"
 	"github.com/FusionFoundation/efsn/accounts/keystore"
 	"github.com/FusionFoundation/efsn/cmd/utils"
@@ -41,7 +40,8 @@ import (
 	"github.com/FusionFoundation/efsn/log"
 	"github.com/FusionFoundation/efsn/metrics"
 	"github.com/FusionFoundation/efsn/node"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/elastic/gosigar"
+	cli "gopkg.in/urfave/cli.v1"
 )
 
 const (
@@ -337,15 +337,16 @@ func startNode(ctx *cli.Context, stack *node.Node) {
 
 	if ctx.GlobalIsSet(utils.AutoBuyTicketsCountFlag.Name) {
 		common.TicketsToBuy = ctx.GlobalInt(utils.AutoBuyTicketsCountFlag.Name)
-		log.Info("AutoBuyTicketsCount set to " , " number = ", common.TicketsToBuy )
+		log.Info("AutoBuyTicketsCount set to ", " number = ", common.TicketsToBuy)
 	}
 	// Start auto buy tickets if enabled
 	if ctx.GlobalBool(utils.AutoBuyTicketsEnabledFlag.Name) {
+		log.Info("Setting up AutoBuyTickets with ", "max ticket count", common.TicketsToBuy)
 		// use first account
 		if unlocks != nil && passwords != nil {
 			common.AutoBuyTicket = true
 			go ethapi.AutoBuyTicket(common.HexToAddress(unlocks[0]), passwords[0])
-		}else{
+		} else {
 			log.Warn("Failed to AutoBuyTicket", "by args", utils.AutoBuyTicketsEnabledFlag.Name)
 		}
 	}
