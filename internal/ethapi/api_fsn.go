@@ -525,14 +525,10 @@ func AutoBuyTicket(account common.Address, passwd string, maxTiks int) {
 	for {
 		select {
 		case <-common.AutoBuyTicketChan:
-			log.Info("AutoBuyTicketCalled")
 			if privateFusionAPI.b.IsMining() {
-				log.Info("max tickets purchased set to ", "totalTiksToBuy", maxTiks)
 				fbase := FusionBaseArgs{From: account}
 				args := BuyTicketArgs{FusionBaseArgs: fbase}
 				privateFusionAPI.BuyTicket(nil, args, maxTiks, passwd)
-			} else {
-				log.Info("Node is not a miner, no auto buy ticket")
 			}
 		}
 	}
@@ -793,20 +789,15 @@ func (s *PrivateFusionAPI) BuyTicket(ctx context.Context, args BuyTicketArgs, to
 		return common.Hash{}, err
 	}
 
-	log.Info("calling all tickets")
 	tickets, err := s.AllTicketsByAddress(ctx, args.From, rpc.LatestBlockNumber)
 	if err != nil {
 		log.Info("Error getting all tickets by address in auto buy ticket ")
 		return common.Hash{}, err
 	}
 
-	log.Info("checking tik len")
 	activeTickets := len(tickets)
 	if activeTickets >= totalTiksToBuy {
-		log.Info("No need to buy tickets", "Active Tickets", activeTickets, "maxLevelOfTickets", totalTiksToBuy)
 		return common.Hash{}, fmt.Errorf("no need to buy max number reached")
-	} else {
-		log.Info("purchasing a ticket ", "activeTickets", activeTickets )
 	}
 
 	block, err := s.b.BlockByNumber(ctx, rpc.LatestBlockNumber)
@@ -815,8 +806,10 @@ func (s *PrivateFusionAPI) BuyTicket(ctx context.Context, args BuyTicketArgs, to
 	}
 
 	if doesTicketPurchaseExistsForBlock(block.Header().Number.Int64(), args.From) {
-		log.Info("Purchase of BuyTicket for this block already submitted")
+		log.Info("Purchase of BuyTicket for this block already submitted", "Active Tickets", activeTickets )
 		return common.Hash{}, fmt.Errorf("Purchase of BuyTicket for this block already submitted")
+	} else {
+		log.Info("Trying to purchase a ticket ", "activeTickets", activeTickets )
 	}
 
 	if args.Start == nil {
@@ -839,6 +832,7 @@ func (s *PrivateFusionAPI) BuyTicket(ctx context.Context, args BuyTicketArgs, to
 	})
 	if state.GetTimeLockBalance(common.SystemAssetID, args.From).Cmp(needValue) < 0 {
 		if state.GetBalance(common.SystemAssetID, args.From).Cmp(value) < 0 {
+			log.Info("Not enough time lock or asset balance to do autobuy ticket, will try again on next block")
 			return common.Hash{}, fmt.Errorf("not enough time lock or asset balance")
 		}
 	}
