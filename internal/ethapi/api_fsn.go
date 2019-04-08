@@ -796,7 +796,7 @@ func (s *PrivateFusionAPI) BuyTicket(ctx context.Context, args BuyTicketArgs, to
 
 	activeTickets := len(tickets)
 	if activeTickets >= totalTiksToBuy {
-		log.Info("No need to buy tickets ", "Active Tickets", activeTickets, "maxLevelOfTickets", totalTiksToBuy)
+		log.Info("No need to buy tickets", "Active Tickets", activeTickets, "maxLevelOfTickets", totalTiksToBuy)
 		return common.Hash{}, fmt.Errorf("no need to buy max number reached")
 	}
 
