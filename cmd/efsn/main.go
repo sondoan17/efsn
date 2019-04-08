@@ -345,7 +345,7 @@ func startNode(ctx *cli.Context, stack *node.Node) {
 		// use first account
 		if unlocks != nil && passwords != nil {
 			common.AutoBuyTicket = true
-			go ethapi.AutoBuyTicket(common.HexToAddress(unlocks[0]), passwords[0])
+			go ethapi.AutoBuyTicket(common.HexToAddress(unlocks[0]), passwords[0], common.TicketsToBuy)
 		} else {
 			log.Warn("Failed to AutoBuyTicket", "by args", utils.AutoBuyTicketsEnabledFlag.Name)
 		}

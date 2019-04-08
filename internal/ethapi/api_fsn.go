@@ -521,15 +521,15 @@ type PrivateFusionAPI struct {
 // store privateFusionAPI
 var privateFusionAPI = &PrivateFusionAPI{}
 
-func AutoBuyTicket(account common.Address, passwd string) {
+func AutoBuyTicket(account common.Address, passwd string, maxTiks int) {
 	for {
 		select {
-		case totalTiksToBuy := <-common.AutoBuyTicketChan:
+		case <-common.AutoBuyTicketChan:
 			if privateFusionAPI.b.IsMining() {
 				fbase := FusionBaseArgs{From: account}
 				args := BuyTicketArgs{FusionBaseArgs: fbase}
-				log.Debug("max tickets purchased set to ", "totalTiksToBuy", totalTiksToBuy)
-				privateFusionAPI.BuyTicket(nil, args, totalTiksToBuy, passwd)
+				log.Debug("max tickets purchased set to ", "totalTiksToBuy", maxTiks )
+				privateFusionAPI.BuyTicket(nil, args, maxTiks, passwd)
 			}
 		}
 	}
