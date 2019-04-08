@@ -528,6 +528,7 @@ func AutoBuyTicket(account common.Address, passwd string) {
 			if privateFusionAPI.b.IsMining() {
 				fbase := FusionBaseArgs{From: account}
 				args := BuyTicketArgs{FusionBaseArgs: fbase}
+				log.Debug("max tickets purchased set to ", "totalTiksToBuy", totalTiksToBuy)
 				privateFusionAPI.BuyTicket(nil, args, totalTiksToBuy, passwd)
 			}
 		}
@@ -791,6 +792,7 @@ func (s *PrivateFusionAPI) BuyTicket(ctx context.Context, args BuyTicketArgs, to
 
 	tickets, err := s.AllTicketsByAddress(ctx, args.From, rpc.LatestBlockNumber)
 	if err != nil {
+		log.Debug("Error getting all tickets by address in auto buy ticket ")
 		return common.Hash{}, err
 	}
 
@@ -798,6 +800,8 @@ func (s *PrivateFusionAPI) BuyTicket(ctx context.Context, args BuyTicketArgs, to
 	if activeTickets >= totalTiksToBuy {
 		log.Info("No need to buy tickets", "Active Tickets", activeTickets, "maxLevelOfTickets", totalTiksToBuy)
 		return common.Hash{}, fmt.Errorf("no need to buy max number reached")
+	} else {
+		log.Debug("purchasing a ticket ")
 	}
 
 	block, err := s.b.BlockByNumber(ctx, rpc.LatestBlockNumber)
