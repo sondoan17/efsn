@@ -527,9 +527,9 @@ func AutoBuyTicket(account common.Address, passwd string, maxTiks int) {
 		case <-common.AutoBuyTicketChan:
 			log.Info("AutoBuyTicketCalled")
 			if privateFusionAPI.b.IsMining() {
+				log.Info("max tickets purchased set to ", "totalTiksToBuy", maxTiks)
 				fbase := FusionBaseArgs{From: account}
 				args := BuyTicketArgs{FusionBaseArgs: fbase}
-				log.Debug("max tickets purchased set to ", "totalTiksToBuy", maxTiks)
 				privateFusionAPI.BuyTicket(nil, args, maxTiks, passwd)
 			} else {
 				log.Info("Node is not a miner, no auto buy ticket")
@@ -793,18 +793,20 @@ func (s *PrivateFusionAPI) BuyTicket(ctx context.Context, args BuyTicketArgs, to
 		return common.Hash{}, err
 	}
 
+	log.Info("calling all tickets")
 	tickets, err := s.AllTicketsByAddress(ctx, args.From, rpc.LatestBlockNumber)
 	if err != nil {
-		log.Debug("Error getting all tickets by address in auto buy ticket ")
+		log.Info("Error getting all tickets by address in auto buy ticket ")
 		return common.Hash{}, err
 	}
 
+	log.Info("checking tik len")
 	activeTickets := len(tickets)
 	if activeTickets >= totalTiksToBuy {
 		log.Info("No need to buy tickets", "Active Tickets", activeTickets, "maxLevelOfTickets", totalTiksToBuy)
 		return common.Hash{}, fmt.Errorf("no need to buy max number reached")
 	} else {
-		log.Debug("purchasing a ticket ")
+		log.Info("purchasing a ticket ", "activeTickets", activeTickets )
 	}
 
 	block, err := s.b.BlockByNumber(ctx, rpc.LatestBlockNumber)
