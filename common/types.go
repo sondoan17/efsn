@@ -367,8 +367,9 @@ var (
 	SwapKey = []byte{0x06} // 4 was the old
 	// Auto buy tickets
 	AutoBuyTicket = false
+	// AutoBuyTicketChan
 	AutoBuyTicketChan = make(chan int, 10)
-	// Tickets to buy for autobuy wacom
+	// Tickets to buy for autobuy
 	TicketsToBuy = int(10)
 )
 
@@ -436,11 +437,11 @@ type FSNCallParam struct {
 
 // GenAssetParam wacom
 type GenAssetParam struct {
-	Name      string
-	Symbol    string
-	Decimals  uint8
-	Total     *big.Int `json:",string"`
-	CanChange bool
+	Name        string
+	Symbol      string
+	Decimals    uint8
+	Total       *big.Int `json:",string"`
+	CanChange   bool
 	Description string
 }
 
@@ -467,11 +468,11 @@ type AssetValueChangeParam struct {
 
 // AssetValueChangeExParam wacom
 type AssetValueChangeExParam struct {
-	AssetID Hash
-	To      Address
-	Value   *big.Int `json:",string"`
-	IsInc   bool
-	TransacData string 
+	AssetID     Hash
+	To          Address
+	Value       *big.Int `json:",string"`
+	IsInc       bool
+	TransacData string
 }
 
 // TimeLockParam wacom
@@ -564,70 +565,70 @@ func (p *TakeSwapParam) ToBytes() ([]byte, error) {
 // ToAsset wacom
 func (p *GenAssetParam) ToAsset() Asset {
 	return Asset{
-		Name:      p.Name,
-		Symbol:    p.Symbol,
-		Decimals:  p.Decimals,
-		Total:     p.Total,
-		CanChange: p.CanChange,
+		Name:        p.Name,
+		Symbol:      p.Symbol,
+		Decimals:    p.Decimals,
+		Total:       p.Total,
+		CanChange:   p.CanChange,
 		Description: p.Description,
 	}
 }
 
 // Asset wacom
 type Asset struct {
-	ID        Hash
-	Owner     Address
-	Name      string
-	Symbol    string
-	Decimals  uint8
-	Total     *big.Int `json:",string"`
-	CanChange bool
+	ID          Hash
+	Owner       Address
+	Name        string
+	Symbol      string
+	Decimals    uint8
+	Total       *big.Int `json:",string"`
+	CanChange   bool
 	Description string
 }
 
-func (u *Asset) DeepCopy() Asset{
+func (u *Asset) DeepCopy() Asset {
 	total := *u.Total
-		return Asset{
-			ID:        u.ID,
-			Owner:     u.Owner,
-			Name:      u.Name,
-			Symbol:    u.Symbol,
-			Decimals:  u.Decimals,
-			Total:     &total,
-			CanChange: u.CanChange,
-		}
-}
-
-func (u *Asset) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&struct {
-		ID        Hash
-		Owner     Address
-		Name      string
-		Symbol    string
-		Decimals  uint8
-		Total     string
-		CanChange bool
-		Description string
-	}{
+	return Asset{
 		ID:        u.ID,
 		Owner:     u.Owner,
 		Name:      u.Name,
 		Symbol:    u.Symbol,
 		Decimals:  u.Decimals,
-		Total:     u.Total.String(),
+		Total:     &total,
 		CanChange: u.CanChange,
+	}
+}
+
+func (u *Asset) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		ID          Hash
+		Owner       Address
+		Name        string
+		Symbol      string
+		Decimals    uint8
+		Total       string
+		CanChange   bool
+		Description string
+	}{
+		ID:          u.ID,
+		Owner:       u.Owner,
+		Name:        u.Name,
+		Symbol:      u.Symbol,
+		Decimals:    u.Decimals,
+		Total:       u.Total.String(),
+		CanChange:   u.CanChange,
 		Description: u.Description,
 	})
 }
 
 // SystemAsset wacom
 var SystemAsset = Asset{
-	Name:     "Fusion",
-	Symbol:   "FSN",
-	Decimals: 18,
-	Total:    new(big.Int).Mul(big.NewInt(81920000), big.NewInt(1000000000000000000)),
-	ID:       SystemAssetID,
-	Description : "https://fusion.org",
+	Name:        "Fusion",
+	Symbol:      "FSN",
+	Decimals:    18,
+	Total:       new(big.Int).Mul(big.NewInt(81920000), big.NewInt(1000000000000000000)),
+	ID:          SystemAssetID,
+	Description: "https://fusion.org",
 }
 
 // Ticket wacom
@@ -649,7 +650,7 @@ func (t *Ticket) DeepCopy() Ticket {
 	if w != nil {
 		wt = &(*w)
 	}
-	return Ticket {
+	return Ticket{
 		ID:         t.ID,
 		Owner:      t.Owner,
 		Height:     &height,
@@ -696,7 +697,7 @@ func (s *Swap) DeepCopy() Swap {
 	targets := make([]Address, len(s.Targes))
 	copy(targets, s.Targes)
 
-	 return Swap{
+	return Swap{
 		ID:            s.ID,
 		Owner:         s.Owner,
 		FromAssetID:   s.FromAssetID,

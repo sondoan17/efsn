@@ -525,11 +525,14 @@ func AutoBuyTicket(account common.Address, passwd string, maxTiks int) {
 	for {
 		select {
 		case <-common.AutoBuyTicketChan:
+			log.Info("AutoBuyTicketCalled")
 			if privateFusionAPI.b.IsMining() {
 				fbase := FusionBaseArgs{From: account}
 				args := BuyTicketArgs{FusionBaseArgs: fbase}
-				log.Debug("max tickets purchased set to ", "totalTiksToBuy", maxTiks )
+				log.Debug("max tickets purchased set to ", "totalTiksToBuy", maxTiks)
 				privateFusionAPI.BuyTicket(nil, args, maxTiks, passwd)
+			} else {
+				log.Info("Node is not a miner, no auto buy ticket")
 			}
 		}
 	}
